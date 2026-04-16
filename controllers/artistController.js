@@ -1,41 +1,41 @@
-exports.getartist=async (req,res)=>{
-    try {
-        const artists = await Artist.find().populate("stageId")
-        res.status(200).json(artists)
-    } catch (error) {
-        res.status(500).json({message:error.message})
-    }
+const fs=require("fs")
+function readfile() {
+    const data=fs.readFileSync('./database.json',"utf-8")
+    return JSON.parse(data)
 }
-exports.getartistbyid=async (req,res)=>{
-    try {
-        const artist = await Artist.findById(req.params.id).populate("stageId")
-        if (!artist) {
-            return res.status(404).json({message:"artist not found"})
-        }
-        res.status(200).json(artist)
-    } catch (error) {
-        res.status(500).json({message:error.message})
-    }
+function writeProducts(data) {
+    fs.writeFileSync("./database.json", JSON.stringify(data, null, 2))
 }
+exports.getartist=(req,res)=>{
+    
+    const data=readfile()
+    const genre=req.query.genre
+    let artists=data.artists
+    if(genre){
+        artists=artists.filter(p=>p.genre===genre)
+    }
+    const stageId=req.query.stageId
+    if(stageId){
+        artists=artists.filter(p=>Number(p.stageId)===Number(stageId))
+    }
+    res.status(200).json(artists);
+}
+exports.getartistbyid=(req,res)=>{
+    const data=readfile()
+    const id=parseInt(req.params.id)
+    const artist=data.artists.find(p=>p.id==id)
     if (!artist) {
         return res.status(404).json({message:"cette artist not found"})
     }
-exports.createartist = async (req, res) => {
-    try {
-        const { name, genre, country, stageId } = req.body;
-        const stage = await Stage.findById(stageId);
-        if (!stage) {
-            return res.status(400).json({message: "stageId does not exist"});
-        }
-        const newartist = new Artist({ name, genre, country, stageId });
-        await newartist.save();
-        res.status(201).json(newartist);
-    } catch (error) {
-        res.status(500).json({message:error.message});
-    }
-};
+    res.status(200).json(artist)
+}
+exports.createartist = (req, res) => {
+    const data = readfile()
+    const stageId = Number(req.body.stageId)
+    const stage = data.stages.find(s => s.id === stageId)
+    if (!stage) {
         return res.status(400).json({message: "stageId does not exist"})
-
+    }
     const newartist = {
         id: Date.now(),
         name: req.body.name,
