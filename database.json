@@ -1,0 +1,29 @@
+{
+"stages": [
+{
+"id": 1,
+"name": "OLM Souissi",
+"city": "Rabat",
+"capacity": 8000
+}
+],
+"artists": [
+{
+"id": 1,
+"name": "Artist A",
+"genre": "Pop",
+"country": "Morocco",
+"stageId": 1
+}
+],
+"concerts": [
+{
+"id": 1,
+"title": "Opening Night",
+"date": "2026-06-21",
+"time": "20:30",
+"duration": 90,
+"artistId": 1
+}
+]
+}
