@@ -1,18 +1,26 @@
-const express = require("express")
+// Importation du framework Express
+const express = require("express");
 
-const stageroute = require("./routes/StageRoutes")
-const artistsroute = require("./routes/artistsRoutes")
-const concertroute = require("./routes/concertRoutes")
+// Importation des fichiers de routes pour chaque entité
+const stageroute = require("./routes/StageRoutes");
+const artistsroute = require("./routes/artistsRoutes");
+const concertroute = require("./routes/concertRoutes");
 
-const app = express()
+// Initialisation de l'application Express
+const app = express();
 
-app.use(express.json())
+// Middleware pour parser le corps des requêtes en JSON
+app.use(express.json());
 
-// routes
-app.use("/stage", stageroute)
-app.use("/artists", artistsroute)
-app.use("/concert", concertroute)
+// Définition des routes principales (Endpoints)
+// Toutes les requêtes commençant par "/stage" seront gérées par stageroute
+app.use("/stage", stageroute);
+// Toutes les requêtes commençant par "/artists" seront gérées par artistsroute
+app.use("/artists", artistsroute);
+// Toutes les requêtes commençant par "/concert" seront gérées par concertroute
+app.use("/concert", concertroute);
 
+// Lancement du serveur sur le port 3000
 app.listen(3000, () => {
-    console.log("Server running on port 3000")
-})
+    console.log("Serveur démarré avec succès sur le port 3000");
+});
