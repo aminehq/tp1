@@ -1,8 +1,9 @@
 //create concert
 const Concert = require('../models/Concert');
+const Artist = require('../models/Artist');
 exports.createconcert = async (req, res) => {
     try{
-        const artistID = req.body.artistID;
+        const artistID = req.body.artistId;
         if(artistID){
             const artist = await Artist.findById(artistID);
             if(!artist){

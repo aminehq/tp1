@@ -1,9 +1,10 @@
 //create artist
 const Artist = require('../models/Artist');
 const Stage = require('../models/Stage');
+const Concert = require('../models/Concert');
 exports.createartist = async (req, res) => {
     try{
-       const stageID = req.body.stageID;
+       const stageID = req.body.stageId;
         if(stageID){
             const stage = await Stage.findById(stageID);
             if(!stage){
@@ -13,7 +14,6 @@ exports.createartist = async (req, res) => {
                 })
             }
             const artist = await Artist.create(req.body);
-            res.send("ok")
             res.status(201).json({
                 success: true,
                 artist

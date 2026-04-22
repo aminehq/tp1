@@ -4,7 +4,7 @@ const Artist = require('../models/Artist')
 // create stage
 exports.createstage = async (req, res) => {
     try {
-        const stage = await Stage.create(req.query)
+        const stage = await Stage.create(req.body)
         res.status(201).json({ success: true, stage })
     } catch (error) {
         res.status(500).json({ success: false, message: error.message })
