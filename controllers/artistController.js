@@ -1,98 +1,105 @@
-const fs=require("fs")
-function readfile() {
-    const data=fs.readFileSync('./database.json',"utf-8")
-    return JSON.parse(data)
-}
-function writeProducts(data) {
-    fs.writeFileSync("./database.json", JSON.stringify(data, null, 2))
-}
-exports.getartist=(req,res)=>{
-    
-    const data=readfile()
-    const genre=req.query.genre
-    let artists=data.artists
-    if(genre){
-        artists=artists.filter(p=>p.genre===genre)
-    }
-    const stageId=req.query.stageId
-    if(stageId){
-        artists=artists.filter(p=>Number(p.stageId)===Number(stageId))
-    }
-    res.status(200).json(artists);
-}
-exports.getartistbyid=(req,res)=>{
-    const data=readfile()
-    const id=parseInt(req.params.id)
-    const artist=data.artists.find(p=>p.id==id)
-    if (!artist) {
-        return res.status(404).json({message:"cette artist not found"})
-    }
-    res.status(200).json(artist)
-}
-exports.createartist = (req, res) => {
-    const data = readfile()
-    const stageId = Number(req.body.stageId)
-    const stage = data.stages.find(s => s.id === stageId)
-    if (!stage) {
-        return res.status(400).json({message: "stageId does not exist"})
-    }
-    const newartist = {
-        id: Date.now(),
-        name: req.body.name,
-        genre: req.body.genre,
-        country: req.body.country,
-        stageId: stageId
-    }
-    data.artists.push(newartist)
-    writeProducts(data)
-    res.status(201).json(newartist)
-}
-exports.updateartist = (req, res) => {
-    const data = readfile()
-    const id = Number(req.params.id)
-    const artist = data.artists.find(a => a.id === id)
-    if (!artist) {
-        return res.status(404).json({ message: "artist not found" })
-    }
-    if (req.body.stageId) {
-        const stage = data.stages.find(s => s.id === Number(req.body.stageId))
-        if (!stage) {
-            return res.status(400).json({message: "stageId does not exist"})
+//create artist
+const Artist = require('../models/Artist');
+const Stage = require('../models/Stage');
+exports.createartist = async (req, res) => {
+    try{
+       const stageID = req.body.stageID;
+        if(stageID){
+            const stage = await Stage.findById(stageID);
+            if(!stage){
+                return res.status(404).json({
+                    success: false,
+                    message: 'Stage not found'
+                })
+            }
+            const artist = await Artist.create(req.body);
+            res.status(201).json({
+                success: true,
+                artist
+            })
         }
-        artist.stageId = Number(req.body.stageId)
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
     }
-    artist.name = req.body.name ?? artist.name
-    artist.genre = req.body.genre ?? artist.genre
-    artist.country = req.body.country ?? artist.country
-    writeProducts(data)
-    res.status(200).json(artist)
 }
-exports.deleteartist=(req,res)=>{
-    const data=readfile();
-    const id=parseInt(req.params.id)
-    const index=data.artists.findIndex(p=>p.id==id)
-    if (index==-1) {
-        return res.status(404).json({message:"artist not found"})
+//get all artists
+exports.getartist = async (req, res) => {
+    try{
+        const artists = await Artist.find();
+        res.status(200).json({
+            success: true,
+            artists
+        })
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
     }
-    data.artists.splice(index,1)
-    writeProducts(data)
-    res.status(200).json({message:"artist deleted"})
 }
-exports.searchartist=(req,res)=>{
-    const data=readfile();
-    const name=req.query.name
-    const artist=data.artists.filter(artist=>artist.name.toLowerCase().includes(name.toLowerCase()))
-    if(artist.length === 0){
-        return res.status(404).json({message:"artist not found"})
+//get artist by id
+exports.getartistbyid = async (req, res) => {
+    try{
+        const artist = await Artist.findById(req.params.id);
+        if(!artist){
+            return res.status(404).json({
+                success: false,
+                message: 'Artist not found'
+            })
+        }
+        res.status(200).json({
+            success: true,
+            artist
+        })
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
     }
-    res.status(200).json(artist)
 }
-exports.getConcertsByArtist=(req,res)=>{
-    const data=readfile();
-    const id=parseInt(req.params.id)
-    const concerts=data.concerts.filter(a => a.artistId === id)
-    if(concerts.length === 0){
-        return res.status(404).json({message:"concert not found"})
+//update artist
+exports.updateartist = async (req, res) => {
+    try{
+        const artist = await Artist.findByIdAndUpdate(req.params.id, req.body, {new: true});
+        if(!artist){
+            return res.status(404).json({
+                success: false,
+                message: 'Artist not found'
+            })
+        }
+        res.status(200).json({
+            success: true,
+            artist
+        })
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
     }
-    res.status(200).json(concerts)
+}
+//delete artist
+exports.deleteartist = async (req, res) => {
+    try{
+        const artist = await Artist.findByIdAndDelete(req.params.id);
+        if(!artist){
+            return res.status(404).json({
+                success: false,
+                message: 'Artist not found'
+            })
+        }
+        res.status(200).json({
+            success: true,
+            message: 'Artist deleted successfully'
+        })
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
 }

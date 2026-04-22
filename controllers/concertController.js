@@ -1,73 +1,105 @@
-const fs=require("fs")
-function readfile() {
-    const data=fs.readFileSync('./database.json',"utf-8")
-    return JSON.parse(data)
-}
-function writeProducts(data) {
-    fs.writeFileSync("./database.json", JSON.stringify(data, null, 2))
-}
-exports.getconcert=(req,res)=>{
-    const data=readfile()
-    const concert=data.concerts
-    res.status(200).json(concert);
-}
-exports.getconcertbyid=(req,res)=>{
-    const data=readfile()
-    const id=parseInt(req.params.id)
-    const concert=data.concerts.find(p=>p.id==id)
-    if (!concert) {
-        return res.status(404).json({message:"cette concert not found"})
-    }
-    res.status(200).json(concert)
-}
-exports.createconcert = (req, res) => {
-    const data = readfile()
-    const artistId = Number(req.body.artistId)
-    const artist = data.artists.find(a => a.id === artistId)
-    if (!artist) {
-        return res.status(400).json({message: "artistId does not exist"})
-    }
-    const newconcert = {
-        id: Date.now(),
-        title: req.body.title,
-        date: req.body.date,
-        time: req.body.time,
-        duration: req.body.duration,
-        artistId: artistId
-    }
-    data.concerts.push(newconcert)
-    writeProducts(data)
-    res.status(201).json(newconcert)
-}
-exports.updateconcert = (req, res) => {
-    const data = readfile()
-    const id = Number(req.params.id)
-    const concert = data.concerts.find(c => c.id === id)
-    if (!concert) {
-        return res.status(404).json({ message: "concert not found" })
-    }
-    if (req.body.artistId) {
-        const artist = data.artists.find(a => a.id === Number(req.body.artistId))
-        if (!artist) {
-            return res.status(400).json({message: "artistId does not exist"})
+//create concert
+const Concert = require('../models/Concert');
+const Artist = require('../models/Artist');
+exports.createconcert = async (req, res) => {
+    try{
+        const artistID = req.body.artistID;
+        if(artistID){
+            const artist = await Artist.findById(artistID);
+            if(!artist){
+                return res.status(404).json({
+                    success: false,
+                    message: 'Artist not found'
+                })
+            }
+            const concert = await Concert.create(req.body);
+            res.status(201).json({
+                success: true,
+                concert
+            })
         }
-        concert.artistId = Number(req.body.artistId)
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
     }
-    concert.title = req.body.title ?? concert.title
-    concert.date = req.body.date ?? concert.date
-    concert.time = req.body.time ?? concert.time
-    concert.duration = req.body.duration ?? concert.duration
-    writeProducts(data)
-    res.status(200).json(concert)
 }
-exports.deleteconcert=(req,res)=>{
-    const data=readfile();
-    const id=parseInt(req.params.id)
-    const index=data.concerts.findIndex(p=>p.id==id)
-    if (index==-1) {
-        return res.status(404).json({message:"concert not found"})
+//get all concerts
+exports.getconcert = async (req, res) => {
+    try{
+        const concerts = await Concert.find();
+        res.status(200).json({
+            success: true,
+            concerts
+        })
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
     }
-    data.concerts.splice(index,1)
-    writeProducts(data)
-    res.status(200).json({message:"concert deleted"})
+}
+//get concert by id
+exports.getconcertbyid = async (req, res) => {
+    try{
+        const concert = await Concert.findById(req.params.id);
+        if(!concert){
+            return res.status(404).json({
+                success: false,
+                message: 'Concert not found'
+            })
+        }
+        res.status(200).json({
+            success: true,
+            concert
+        })
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+//update concert
+exports.updateconcert = async (req, res) => {
+    try{
+        const concert = await Concert.findByIdAndUpdate(req.params.id, req.body, {new: true});
+        if(!concert){
+            return res.status(404).json({
+                success: false,
+                message: 'Concert not found'
+            })
+        }
+        res.status(200).json({
+            success: true,
+            concert
+        })
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+//delete concert
+exports.deleteconcert = async (req, res) => {
+    try{
+        const concert = await Concert.findByIdAndDelete(req.params.id);
+        if(!concert){
+            return res.status(404).json({
+                success: false,
+                message: 'Concert not found'
+            })
+        }
+        res.status(200).json({
+            success: true,
+            message: 'Concert deleted successfully'
+        })
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
 }

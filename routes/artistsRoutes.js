@@ -4,8 +4,8 @@ const router=express.Router()
 //GET
 router.get("/",getartist)
 //SEARCH
-router.get("/search",searchartist)
-router.get("/:id/concerts",getConcertsByArtist)
+// router.get("/search",searchartist)
+// router.get("/:id/concerts",getConcertsByArtist)
 router.get("/:id",getartistbyid)
 //POST
 router.post("/",createartist)

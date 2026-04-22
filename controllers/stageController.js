@@ -1,67 +1,94 @@
-const fs=require("fs")
-function readfile() {
-    const data=fs.readFileSync('./database.json',"utf-8")
-    return JSON.parse(data)
-}
-function writeStages(data) {
-    fs.writeFileSync("./database.json", JSON.stringify(data, null, 2))
-}
-exports.getstage=(req,res)=>{
-    const data=readfile()
-    const stages=data.stages
-    res.status(200).json(stages);
-}
-exports.getstagebyid=(req,res)=>{
-    const data=readfile()
-    const id=parseInt(req.params.id)
-    const stage=data.stages.find(p=>p.id==id)
-    if (!stage) {
-        return res.status(404).json({message:"cette stage not found"})
+//create stage
+const Stage = require('../models/Stage');
+exports.createstage = async (req, res) => {
+    try{
+        const stage = await Stage.create(req.body);
+        res.status(201).json({
+            success: true,
+            stage
+        })
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
     }
-    res.status(200).json(stage)
 }
-exports.createstage=(req,res)=>{
-    const data=readfile()
-    const newstage={
-        id:Date.now(),
-        name:req.body.name,
-        city:req.body.city,
-        capacity:req.body.capacity
+//get all stages
+exports.getstage = async (req, res) => {
+    try{
+        const stages = await Stage.find();
+        res.status(200).json({
+            success: true,
+            stages
+        })
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
     }
-    data.stages.push(newstage)
-    writeStages(data)
-    res.status(201).json(newstage)
 }
-exports.updatestage=(req,res)=>{
-    const data=readfile();
-    const id=parseInt(req.params.id)
-    const stage=data.stages.find(p=>p.id==id)
-    if (!stage) {
-        return res.status(404).json({message:"stage not found"})
+//get stage by id
+exports.getstagebyid = async (req, res) => {
+    try{
+        const stage = await Stage.findById(req.params.id);
+        if(!stage){
+            return res.status(404).json({
+                success: false,
+                message: 'Stage not found'
+            })
+        }
+        res.status(200).json({
+            success: true,
+            stage
+        })
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
     }
-    stage.name=req.body.name||stage.name
-    stage.city=req.body.city||stage.city
-    stage.capacity=req.body.capacity||stage.capacity
-    writeStages(data)
-    res.status(200).json(stage)
 }
-exports.deletestage=(req,res)=>{
-    const data=readfile();
-    const id=parseInt(req.params.id)
-    const index=data.stages.findIndex(p=>p.id==id)
-    if (index==-1) {
-        return res.status(404).json({message:"stage not found"})
+//update stage
+exports.updatestage = async (req, res) => {
+    try{
+        const stage = await Stage.findByIdAndUpdate(req.params.id, req.body, {new: true});
+        if(!stage){
+            return res.status(404).json({
+                success: false,
+                message: 'Stage not found'
+            })
+        }
+        res.status(200).json({
+            success: true,
+            stage
+        })
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
     }
-    data.stages.splice(index,1)
-    writeStages(data)
-    res.status(200).json({message:"stage deleted"})
 }
-exports.getartistBystage=(req,res)=>{
-    const data=readfile();
-    const id=parseInt(req.params.id)
-    const artists=data.artists.filter(a => a.stageId === id)
-    if(artists.length === 0){
-        return res.status(404).json({message:"artist not found"})
+//delete stage
+exports.deletestage = async (req, res) => {
+    try{
+        const stage = await Stage.findByIdAndDelete(req.params.id);
+        if(!stage){
+            return res.status(404).json({
+                success: false,
+                message: 'Stage not found'
+            })
+        }
+        res.status(200).json({
+            success: true,
+            message: 'Stage deleted successfully'
+        })
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
     }
-    res.status(200).json(artists)
 }

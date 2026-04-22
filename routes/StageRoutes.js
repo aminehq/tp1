@@ -3,7 +3,7 @@ const { getstage, getstagebyid, createstage, updatestage, deletestage, getartist
 const router=express.Router()
 //GET
 router.get("/",getstage)
-router.get("/:id/artists",getartistBystage)
+// router.get("/:id/artists",getartistBystage)
 router.get("/:id",getstagebyid)
 //POST
 router.post("/",createstage)
