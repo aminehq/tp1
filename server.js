@@ -5,10 +5,12 @@ const app = express()
 const stageRoute = require("./routes/StageRoutes")
 const artistRoute = require("./routes/artistsRoutes")
 const concertRoute = require("./routes/concertRoutes")
+const userRoute = require("./routes/usersRoute")
 app.use(express.json())
 app.use("/stages", stageRoute)
 app.use("/artists", artistRoute)
 app.use("/concerts", concertRoute)
+app.use("/api/auth", userRoute)
 connectDB().then(()=>{
     console.log("Connected to MongoDB")
     app.listen(process.env.PORT,()=>{

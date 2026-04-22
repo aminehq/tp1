@@ -1,14 +1,16 @@
 const express =require("express")
 const { getstage, getstagebyid, createstage, updatestage, deletestage, getartistBystage } = require("../controllers/stageController")
+const { authMiddleware } = require("../middlewares/authmiddleware")
+const { adminMiddleware } = require("../middlewares/adminmiddleware")
 const router=express.Router()
 //GET
-router.get("/",getstage)
-router.get("/:id/artists",getartistBystage)
-router.get("/:id",getstagebyid)
+router.get("/",authMiddleware, getstage)
+router.get("/:id/artists",authMiddleware, getartistBystage)
+router.get("/:id",authMiddleware, getstagebyid)
 //POST
-router.post("/",createstage)
+router.post("/",authMiddleware, adminMiddleware, createstage)
 //PUT
-router.put("/:id",updatestage)
+router.put("/:id",authMiddleware, adminMiddleware, updatestage)
 //DELETE
-router.delete("/:id",deletestage)
+router.delete("/:id",authMiddleware, adminMiddleware, deletestage)
 module.exports=router
