@@ -13,6 +13,7 @@ exports.createartist = async (req, res) => {
                 })
             }
             const artist = await Artist.create(req.body);
+            res.send("ok")
             res.status(201).json({
                 success: true,
                 artist
@@ -28,10 +29,62 @@ exports.createartist = async (req, res) => {
 //get all artists
 exports.getartist = async (req, res) => {
     try{
-        const artists = await Artist.find();
+        let artists = await Artist.find();
+        const genre = req.query.genre;
+        const stageId = req.query.stageId;
+        //filter by stageId
+        if(stageId){
+            artists = artists.filter(artist => artist.stageId.toString() === stageId);
+        }
+        //filter by genre
+        if(genre){
+            artists = artists.filter(artist => artist.genre === genre);
+        }
         res.status(200).json({
             success: true,
             artists
+        })
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+//search artists by name
+exports.searchartist = async (req, res) => {
+    try{
+        const name = req.query.name;
+        let artists = await Artist.find();
+        if(name){
+            artists = artists.filter(artist => artist.name.toLowerCase().includes(name.toLowerCase()));
+        }
+        res.status(200).json({
+            success: true,
+            artists
+        })
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+//get concerts by artist
+exports.getConcertsByArtist = async (req, res) => {
+    try{
+        const artistId = req.params.id;
+        const artist = await Artist.findById(artistId);
+        if(!artist){
+            return res.status(404).json({
+                success: false,
+                message: 'Artist not found'
+            })
+        }
+        const concerts = await Concert.find({artistId: artistId});
+        res.status(200).json({
+            success: true,
+            concerts
         })
     }catch(error){
         res.status(500).json({

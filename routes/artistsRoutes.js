@@ -1,11 +1,11 @@
 const express =require("express")
-const { getartist, getartistbyid, createartist, updateartist, deleteartist, searchartist, getConcertsByArtist } = require("../controllers/artistcontroller")
+const { getartist, getartistbyid, createartist, updateartist, deleteartist, searchartist, getConcertsByArtist } = require("../controllers/artistController")
 const router=express.Router()
 //GET
 router.get("/",getartist)
 //SEARCH
-// router.get("/search",searchartist)
-// router.get("/:id/concerts",getConcertsByArtist)
+router.get("/search",searchartist)
+router.get("/:id/concerts",getConcertsByArtist)
 router.get("/:id",getartistbyid)
 //POST
 router.post("/",createartist)
