@@ -42,15 +42,6 @@ Base URL par défaut :
 ```txt
 http://localhost:3000
 ```
-
-Variables `.env` :
-
-```env
-PORT=3000
-MONGO_URI=mongodb://127.0.0.1:27017/mawazine_db
-JWT_SECRET=Ezdt49612
-```
-
 ### Auth
 
 Base route :
