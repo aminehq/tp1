@@ -243,15 +243,6 @@ Ports par défaut :
 | Auth service | `http://localhost:5000` |
 | Product service | `http://localhost:5001` |
 | Order service | `http://localhost:5002` |
-
-Variables communes :
-
-```env
-JWT_SECRET=mySuperSecretKey
-RABBITMQ_URL=amqp://localhost
-ORDER_QUEUE=order_created_queue
-```
-
 ### Auth Service
 
 Base URL :
